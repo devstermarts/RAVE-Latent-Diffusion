@@ -33,8 +33,7 @@ def parse_args():
     parser.add_argument("--model_path", type=str, required=True, default=None, help="Path to the pretrained diffusion model checkpoint.")
     parser.add_argument("--rave_model", type=str, required=True, default=None, help="Path to the pretrained RAVE model (.ts).")
     parser.add_argument("--sample_rate", type=int, default=None, choices=[44100, 48000], help="Sample rate for generated audio. Should match samplerate of RAVE model.")
-    parser.add_argument("--diffusion_steps", type=int, default=random.randint(0,100), help="Number of steps for denoising diffusion.")
-    #parser.add_argument("--diffusion_steps", type=int, default=100, help="Number of steps for denoising diffusion.")
+    parser.add_argument("--diffusion_steps", type=int, default=100, help="Number of steps for denoising diffusion.")
     parser.add_argument("--seed", type=int, default=random.randint(0,2**31-1), help="Random seed for generation.")
     parser.add_argument('--latent_length', type=int, default=4096, choices=[2048, 4096, 8192, 16384], help='Length of generated RAVE latents.')
     parser.add_argument("--length_mult", type=int, default=1, help="Multiply the duration of output by default model window.")
@@ -45,8 +44,7 @@ def parse_args():
     parser.add_argument("--lerp_factor", type=float, default=1.0, help="Interpolating factor between two seeds.")
     parser.add_argument("--seed_a", type=int, default=random.randint(0,2**31-1), help="Starting seed for interpolation.")
     parser.add_argument("--seed_b", type=int, default=random.randint(0,2**31-1), help="Ending seed for interpolation.")
-    parser.add_argument("--temperature", type=float, default=(random.randint(1,100)/100), help="Temperature of the random noise before diffusion.")
-    #parser.add_argument("--temperature", type=float, default=1.0, help="Temperature of the random noise before diffusion.")
+    parser.add_argument("--temperature", type=float, default=1.0, help="Temperature of the random noise before diffusion.")
     return parser.parse_args()
 
 def slerp(val, low, high):
@@ -98,7 +96,7 @@ def generate_audio(model, rave, args, seed):
 
             y = np.stack((y_l, y_r), axis=-1)
 
-        path = f'{args.output_path}/rave-latent_diffusion_seed-{seed}_{args.name}_steps-{args.diffusion_steps}_temp-{args.temperature}_{rave_model_name}.wav'
+        path = f'{args.output_path}/rave-latent_diffusion_seed{seed}_{args.name}_{rave_model_name}.wav'
         print(f"Writing {path}")
         sf.write(path, y, args.sample_rate)
 
@@ -146,7 +144,7 @@ def interpolate_seeds(model, rave, args, seed):
             y_r = y[len(y)//2:]
             y = np.stack((y_l, y_r), axis=-1)
 
-        path = f'{args.output_path}/rave-latent_diffusion_seed-{seed}_{args.name}_steps-{args.diffusion_steps}_temp-{args.temperature}_{rave_model_name}_slerp.wav'
+        path = f'{args.output_path}/rave-latent_diffusion_seed{seed}_{args.name}_{rave_model_name}_slerp.wav'
         print(f"Writing {path}")
         sf.write(path, y, args.sample_rate)
 
